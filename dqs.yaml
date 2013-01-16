@@ -1,0 +1,22 @@
+diet_qualities:
+    fruit:
+    - 2
+    - 2
+    - 2
+    - 1
+    - 0
+    - 0
+    vegetable:
+    - 2
+    - 2
+    - 2
+    - 1
+    - 0
+    - 0
+    refined_grain:
+    - -1
+    - -1
+    - -2
+    - -2
+    - -2
+    - -2

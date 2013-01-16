@@ -1,0 +1,5 @@
+flask
+nose
+rednose
+pymongo
+pyyaml
