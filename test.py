@@ -1,51 +1,119 @@
-
 import json
-# import os
+import os
+import shelve
+import time
 import unittest
-# import tempfile
-
-import pymongo
 
 import server
 
 
+_ORIGINAL_DATASTORE = server._datastore
+
+
 class ServerTestCase(unittest.TestCase):
     def setUp(self):
-        # self.db_fd, server.app.config['DATABASE'] = tempfile.mkstemp()
-        connection = pymongo.MongoClient("localhost", 27017)
-        self.db = connection.dqs
+        self._db = shelve.open("testingdb")
+        self._db["scores"] = []
+        server._datastore = self._db
+
         server.app.config["TESTING"] = True
+
         self.app = server.app.test_client()
 
     def tearDown(self):
-        # os.close(self.db_fd)
-        # os.unlink(flaskr.app.config['DATABASE'])
-        self.db.drop_collection("scores")
+        server._datastore = _ORIGINAL_DATASTORE
+        os.unlink("testingdb.db")
 
     def test_correct_score(self):
         response = self.app.post("/scores", data=json.dumps({
             "foodType": "fruit",
             "portions": 1,
-            "date": "2013-01-12"
+            "date": 20130112
         }))
 
-        print(response.data)
-
-        assert json.loads(response.data) == {"score": 1}
+        self.assertEqual(json.loads(response.data), {"score": 2})
 
     def test_adds_daily_food_count(self):
-        self.app.post("/scores", data=json.dumps({
+
+        response = self.app.post("/scores", data=json.dumps({
             "foodType": "fruit",
             "portions": 1,
-            "date": "2013-01-13"
+            "date": 20130113
         }))
 
-        scores_collection = self.db["scores"]
+        self.assertEqual(201, response.status_code)
 
-        score = scores_collection.find_one({"date": "2013-01-13"})
+        scores = self._db["scores"]
 
-        print score
+        #
+        # TODO: Probably going into server library.
+        #
+        def find_if(collection, callback):
+            for element in collection:
+                if callback(element):
+                    return element
 
-        assert None != score
-        assert "fruit" == score["food_type"]
-        assert 1 == score["score"]
+            return None
+
+        score = find_if(scores, lambda score: score["date"] == 20130113)
+
+        self.assertNotEqual(None, score)
+        self.assertEqual("fruit", score["foodType"])
+        self.assertEqual(2, score["score"])
+
+    def test_only_add_valid_food(self):
+        response = self.app.post(
+            "/scores", data=json.dumps({
+                "foodType": "coffee",
+                "portions": 3,
+                "date": 20130202
+            }))
+
+        self.assertEqual(400, response.status_code)
+
+        response = self.app.post(
+            "/scores", data=json.dumps({
+                "foodType": "vegetable",
+                "portions": 1,
+                "date": 20130203
+            }))
+
+        self.assertEqual(201, response.status_code)
+
+    def test_valid_food_type(self):
+        food_types = {
+            "cookies": [],
+            "milk": []
+        }
+
+        self.assertTrue(server._valid_food_type(food_types, "cookies"))
+        self.assertFalse(server._valid_food_type(food_types, "cake"))
+
+    def test_dqs_scores(self):
+        #
+        # TODO: Remove the portions parameter. Otherwise you would have to
+        # return an array of score which the user would have to manager and
+        # that sucks.
+        #
+        response = self.app.post(
+            "/scores", data=json.dumps({
+                "foodType": "vegetable",
+                "portions": 1,
+                "date": 20130203
+            }))
+
+        response = json.loads(response.data)
+        self.assertEqual(2, response["score"])
+
+    def test_score_should_match_portion(self):
+        scores_for_portions = [2, 2, 2, 1, 0, 0]
+        for score in scores_for_portions:
+            response = self.app.post(
+                "/scores", data=json.dumps({
+                    "foodType": "vegetable",
+                    "portions": 1,
+                    "date": time.strftime("%Y%m%d")
+                }))
+
+            response = json.loads(response.data)
+            self.assertEqual(response["score"], score)

@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <title>Diet Quality Score</title>
+  <script src="static/js/vendor/jquery-1.9.0.js"></script>
+  <script src="static/js/vendor/underscore.js"></script>
+  <script src="static/js/vendor/backbone.js"></script>
+  <script src="static/js/vendor/moment.js"></script>
+  <script src="static/js/app.js"></script>
+
+  <script type="text/template" id="score-template">
+    <span><%= foodType %></span>
+    <span><%= score %></span>
+  </script>
+
+  <script type="text/template" id="scores-template">
+    <ol></ol>
+  </script>
+
+  <script type="text/template" id="new-food-template">
+    <div>
+      <span>foodType</span>
+      <span>
+        <input type="text" id="new-food" placeholder="Try vegetable, lean protein or fruit." />
+      </span>
+    </div>
+  </script>
+
+  <script type="application/javascript">
+    jQuery(function() {
+      window.scores.fetch();
+    });
+  </script>
+
+</head>
+<body>
+  <h2>Diet Quality Score Tracker</h2>
+  <div id="container"></div>
+</body>
+</html>

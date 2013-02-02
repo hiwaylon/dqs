@@ -824,7 +824,9 @@
     // wait for the server to agree.
     create: function(model, options) {
       options = options ? _.clone(options) : {};
-      if (!(model = this._prepareModel(model, options))) return false;
+      if (!(model = this._prepareModel(model, options))) {
+        return false
+      };
       if (!options.wait) this.add(model, options);
       var collection = this;
       var success = options.success;
@@ -863,7 +865,9 @@
       options || (options = {});
       options.collection = this;
       var model = new this.model(attrs, options);
-      if (!model._validate(attrs, options)) return false;
+      if (!model._validate(attrs, options)) {
+        return false;
+      }
       return model;
     },
 
