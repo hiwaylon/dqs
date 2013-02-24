@@ -23,13 +23,11 @@ preload_data = [
     {
         "score": 2,
         "foodType": "vegetable",
-        "portions": [1],
         "date": 20130122
     },
     {
         "score": -1,
         "foodType": "fatty meat",
-        "portions": [1],
         "date": 20130124
     },
 ]
@@ -68,38 +66,19 @@ def create_score():
     if not _valid_food_type(DIET_QUALITY_SCORE["diet_qualities"], food_type):
         return (json.dumps({"error": "Invalid foodType."}), 400)
 
-    try:
-        portions = int(request.get("portions"))
-    except ValueError:
-        return (
-            json.dumps({
-                "error": "Invalid or mssing portions (%s)." % (portions)
-            }), 400)
-
-    if not portions:
-        return (
-            json.dumps({
-                "error": "Invalid or mssing portions (%s)." % (portions)
-            }), 400)
-
     # Compute the score for the given food and portions on this date.
     scores = _datastore["scores"]
 
     # Count serving of food type for day.
     today = time.strftime("%Y%m%d")
-    print today
 
     def find_today(element):
-        print "ehh?"
-        print element
         if element["date"] == today and element["foodType"] == food_type:
-            print "found"
             return True
 
         return False
 
     todays_scores = filter(find_today, scores)
-    print todays_scores
     score = _get_current_score(food_type, len(todays_scores))
 
     logger.info("-- Adding score (%s)." % (score))
@@ -109,7 +88,6 @@ def create_score():
         "score": score,
         "date": date,
         "foodType": food_type,
-        "portions": portions
     })
     _datastore["scores"] = scores
 
@@ -119,6 +97,12 @@ def create_score():
 def _get_current_score(food_type, portion):
     # food_type should have been validated at this point.
     food_scores = DIET_QUALITY_SCORE["diet_qualities"].get(food_type)
+
+    logger.info(
+        "-- Looking for portion (%s) for food (%s)." % (portion, food_type))
+
+    if portion >= len(food_scores):
+        return food_scores[-1]
     return food_scores[portion]
 
 

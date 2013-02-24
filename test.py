@@ -117,3 +117,15 @@ class ServerTestCase(unittest.TestCase):
 
             response = json.loads(response.data)
             self.assertEqual(response["score"], score)
+
+        # Subsequent scores should be 0 (for veggies).
+        for i in xrange(3):
+            response = self.app.post(
+                "/scores", data=json.dumps({
+                    "foodType": "vegetable",
+                    "portions": 1,
+                    "date": time.strftime("%Y%m%d")
+                }))
+
+            response = json.loads(response.data)
+            self.assertEqual(response["score"], 0)

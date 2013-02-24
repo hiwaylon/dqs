@@ -1,16 +1,12 @@
 (function($) {
   // NOTE: No atributes are added to class. They can be added dynamically.
   window.Score = Backbone.Model.extend({
-
       initialize: function() {
-        this.on('invalid', function() {
-        });
       },
 
       validate: function(attributes) {
-        return !!attributes.foodType || !! attributes.date || !!attributes.portions ? false : true;
+        return !!attributes.foodType || !! attributes.date  ? false : true;
       },
-
   });
 
   window.Scores = Backbone.Collection.extend({
@@ -26,12 +22,10 @@
       className: 'score-view',
       template: _.template($('#score-template').html()),
 
-      initialize: function() {
-      },
-
       render: function() {
         var renderedContent = this.template(this.model.toJSON());
-        $(this.el).html(renderedContent);
+        this.$el.html(renderedContent);
+
         return this;
       }
     });
@@ -41,29 +35,35 @@
       template: _.template($('#scores-template').html()),
 
       initialize: function() {
-        this.collection.bind('reset', this.render, this);
-        this.collection.bind('add', this.addScore, this);
+        // "bind" and "on" are the same thing
+        this.collection.on('reset', this.render, this);
+        this.collection.on('add', this.addScore, this);
       },
 
       render: function() {
-        $(this.el).html(this.template());
+        this.$el.html(this.template());
 
-        var that = this;
+        var self = this;
         this.collection.each(function(score) {
           var scoreView = new ScoreView({model: score});
-          that.$('ol').append(scoreView.render().el);
+          self.$('ol').append(scoreView.render().el);
         });
         
         return this;
       },
 
-      addScore: function(event) {
+      addScore: function(model, collection, options) {
+        console.log(arguments)
+
+        console.log("adding score");
+        console.log(collection)
+
         var score = new Score({
-          foodType: event.attributes.foodType,
-          date: event.attributes.date,
-          portions: event.attributes.portions,
-          score: event.attributes.score
+          foodType: model.attributes.foodType,
+          date: model.attributes.date,
+          score: model.attributes.score
         });
+
         var scoreView = new ScoreView({model: score});
         this.$('ol').append(scoreView.render().el);
       },
@@ -91,18 +91,11 @@
 
           var score = this.collection.create({
             foodType: $('#new-food').val(),
-            portions: [1],
             date: parseInt(moment().format('YYYYMMDD'))
-          },
-          {
+          }, {
             wait: true,
-            validate: true
+            validate: true,
           });
-
-          if (score) {
-            this.collection.add(score);
-            $('#new-food').focus(); 
-          }
         }
       },
     });
@@ -132,7 +125,6 @@
     window.App = new DQSRouter();
     Backbone.history.start();
   });
-
   
   window.DQS = window.DQS || {};
   DQS.Scores = Backbone.Collection.extend({});
