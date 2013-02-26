@@ -8,6 +8,11 @@
   <script src="static/js/vendor/moment.js"></script>
   <script src="static/js/app.js"></script>
 
+  <script type="text/template" id="total-score-template">
+      <h2>Day Score</h2>
+      <p><%= totalScore %></p>
+  </script>
+
   <script type="text/template" id="score-template">
     <p><%= foodType %></p>
     <p><%= score %></p>
@@ -15,12 +20,14 @@
   </script>
 
   <script type="text/template" id="scores-template">
+    <h2>Meals</h2>
     <ol></ol>
   </script>
 
   <script type="text/template" id="new-food-template">
+    <h2>Enter New Meal</h2>
     <div>
-      <span>foodType</span>
+      <span>Enter food type:</span>
       <span>
         <input type="text" id="new-food" placeholder="Try vegetable, lean protein or fruit." />
       </span>
@@ -35,7 +42,8 @@
 
 </head>
 <body>
-  <h2>Diet Quality Score Tracker</h2>
+  <h1>Diet Quality Score Tracker</h1>
+  <p>Enter meal type based on DQS. Meal is scored and daily total updated.</p>
   <div id="container"></div>
 </body>
 </html>

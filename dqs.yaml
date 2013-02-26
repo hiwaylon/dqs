@@ -13,7 +13,63 @@ diet_qualities:
     - 1
     - 0
     - 0
+    lean_protein:
+    - 2
+    - 2
+    - 1
+    - 0
+    - 0
+    - -1
+    whole_grain:
+    - 2
+    - 2
+    - 1
+    - 0
+    - 0
+    - -1
+    lowfat_dairy:
+    - 1
+    - 1
+    - 1
+    - 0
+    - -1
+    - -2
+    essential_fats:
+    - 2
+    - 0
+    - 0
+    - 0
+    - -1
+    - -1
     refined_grain:
+    - -1
+    - -1
+    - -2
+    - -2
+    - -2
+    - -2
+    sweets:
+    - -2
+    - -2
+    - -2
+    - -2
+    - -2
+    - -2
+    fried_food:
+    - -2
+    - -2
+    - -2
+    - -2
+    - -2
+    - -2
+    full_fat_dairy:
+    - -1
+    - -1
+    - -2
+    - -2
+    - -2
+    - -2
+    fatty_protein:
     - -1
     - -1
     - -2

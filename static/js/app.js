@@ -53,19 +53,41 @@
       },
 
       addScore: function(model, collection, options) {
-        console.log(arguments)
-
-        console.log("adding score");
-        console.log(collection)
-
         var score = new Score({
           foodType: model.attributes.foodType,
           date: model.attributes.date,
           score: model.attributes.score
         });
 
-        var scoreView = new ScoreView({model: score});
+        var scoreView = new ScoreView({
+          model: score
+        });
+
         this.$('ol').append(scoreView.render().el);
+      },
+    });
+
+    window.TotalScoresView = Backbone.View.extend({
+      tagName: 'section',
+      template: _.template($('#total-score-template').html()),
+
+      initialize: function() {
+        this.collection.on('sync', this.render, this);
+      },
+
+      render: function(e) {
+        var self = this;
+        var scoreView;
+        var renderedContent;
+        var totalScore = this.collection.reduce(function(memo, score) {
+          console.log(memo, score.attributes.score, memo+score.attributes.score);
+          return memo + score.attributes.score;
+        }, 0);
+
+        renderedContent = this.template({totalScore: totalScore});
+        this.$el.html(renderedContent);
+
+        return this;
       },
     });
 
@@ -79,7 +101,7 @@
       initialize: function() {
       },
 
-      render: function() {
+      render: function(e) {
         $(this.el).html(this.template());
         return this
       },
@@ -89,7 +111,7 @@
           // TODO: read event.preventDefault docs.
           event.preventDefault();
 
-          var score = this.collection.create({
+          this.collection.create({
             foodType: $('#new-food').val(),
             date: parseInt(moment().format('YYYYMMDD'))
           }, {
@@ -113,10 +135,15 @@
         this.newFoodView = new NewFoodView({
           collection: scores,
         });
+
+        this.totalScoreView = new TotalScoresView({
+          collection: scores,
+        });
       },
 
       index: function() {
         $('#container').empty();
+        $('#container').append(this.totalScoreView.render().el);
         $('#container').append(this.scoresView.render().el);
         $('#container').append(this.newFoodView.render().el);
       },

@@ -36,6 +36,6 @@ nosetests.xml
 .pydevproject
 
 server.log
-datastore.db
+datastore
 *.log
 
