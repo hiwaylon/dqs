@@ -55,6 +55,7 @@
       addScore: function(model, collection, options) {
         var score = new Score({
           foodType: model.attributes.foodType,
+          meal_description: model.attributes.meal_description,
           date: model.attributes.date,
           score: model.attributes.score
         });
@@ -96,6 +97,7 @@
       template: _.template($('#new-food-template').html()),
       events: {
         'keypress #new-food': 'saveOnEnter',
+        'keypress #meal': 'saveOnEnter',
       },
 
       initialize: function() {
@@ -113,6 +115,7 @@
 
           this.collection.create({
             foodType: $('#new-food').val(),
+            meal_description: $('#meal').val(),
             date: parseInt(moment().format('YYYYMMDD'))
           }, {
             wait: true,

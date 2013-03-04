@@ -29,7 +29,8 @@ connection.row_factory = sqlite3.Row
 #
 db = connection.cursor()
 try:
-    db.execute('CREATE TABLE scores (score int, food_type text, date int)')
+    db.execute(
+        'CREATE TABLE scores (score int, food_type text, date int, meal_description text)')
 except sqlite3.OperationalError:
     logger.info('scores table already exists')
 #
@@ -54,7 +55,7 @@ def get_scores():
 
     scores = []
     for score in scores_cursor:
-        logger.debug('score: %s', score)
+        logger.debug('got score: %s', score)
         scores.append(score)
 
     return json.dumps(scores)
@@ -70,12 +71,16 @@ def create_score():
     if not date or len(str(date)) != 8:
         return (json.dumps({'error': 'Invalid or missing date.'}), 400)
 
-    food_type = unicode(request.get('foodType'))
+    food_type = request.get('foodType')
     if not food_type:
         return (json.dumps({'error': 'Missing foodType.'}), 400)
 
     if not _valid_food_type(DIET_QUALITY_SCORE['diet_qualities'], food_type):
         return (json.dumps({'error': 'Invalid foodType.'}), 400)
+
+    meal_description = request.get('meal_description')
+    if not meal_description:
+        return (json.dumps({'error': 'Missing meal_description.'}), 400)
 
     # Count serving of food type for day.
     today = time.strftime('%Y%m%d')
@@ -103,7 +108,8 @@ def create_score():
     logger.info('-- Adding score (%s).' % (score))
 
     db.execute(
-        'INSERT INTO scores VALUES (%d, "%s", %d)' % (date, food_type, score))
+        'INSERT INTO scores VALUES (%d, "%s", %d, "%s")' % (
+            score, food_type, date, meal_description))
 
     return (json.dumps({
         'score': score
