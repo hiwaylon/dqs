@@ -39,3 +39,4 @@ server.log
 datastore
 *.log
 
+*.pyc
