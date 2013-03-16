@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import sqlite3
 import time
 import yaml
@@ -134,4 +135,5 @@ def _valid_food_type(food_types, food_type):
     return food_type in valid_foods
 
 if __name__ == '__main__':
-    app.run(port=8000, debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
